@@ -1,6 +1,13 @@
+import { useCycle } from "../../hooks/useCycle";
 import { HistoryContainer, HistoryList, Status } from "./styles";
+import { formatDistanceToNow } from 'date-fns'
+import ptBR from 'date-fns/locale/pt-BR'
 
 export function History() {
+  const { cycles } = useCycle();
+
+  console.log(cycles)
+
   return (
     <HistoryContainer>
       <h1>Meu histórico</h1>
@@ -16,54 +23,23 @@ export function History() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Conserto de debitos tecnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <Status statusColor={"yellow"}>Concluido</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de debitos tecnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <Status statusColor={"green"}>Concluido</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de debitos tecnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <Status statusColor={"red"}>Concluido</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de debitos tecnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <Status statusColor={"green"}>Concluido</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de debitos tecnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <Status statusColor={"green"}>Concluido</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de debitos tecnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <Status statusColor={"green"}>Concluido</Status>
-              </td>
-            </tr>
+            {cycles &&
+              cycles.map((cycle) => (
+                <tr key={cycle.id}>
+                  <td>{cycle.task}</td>
+                  <td>{cycle.minutesAmount} minutos</td>
+                  <td>{formatDistanceToNow(cycle.startDate, {
+                    addSuffix: true,
+                    locale: ptBR
+                  })}</td>
+                  <td>
+                    {cycle.finishedDate && <Status statusColor={"green"}>Concluido</Status>}
+                    {cycle.interruptDate && <Status statusColor={"red"}>Interrompido</Status>}
+                    {(!cycle.interruptDate && !cycle.finishedDate) && <Status statusColor={"yellow"}>Em andamento</Status>}
+
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </HistoryList>
