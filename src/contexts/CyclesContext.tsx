@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useEffect, useReducer, useState } from "react";
 import { cyclesReducer } from "../reducers/cycles/reducer";
 import { addNewCycleAction, CyclesActionTypes, interruptCycleAction, markCurrentCycleAsFinishedAction } from '../reducers/cycles/actions'
+import { differenceInSeconds } from "date-fns/esm";
 
 export interface Cycle {
   id: string;
@@ -34,7 +35,6 @@ interface CycleContextProps {
 export const CycleContext = createContext({} as CycleContextData);
 
 export function CycleContextProvider({ children }: CycleContextProps) {
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0);
   const [cycleState, dispatch] = useReducer(cyclesReducer, {
     cycles: [],
     activeCycleId: null,
@@ -50,8 +50,20 @@ export function CycleContextProvider({ children }: CycleContextProps) {
       }
     }
   });
+
+  const activeCycle = cycleState.cycles.find(
+    (cycle) => cycle.id === activeCycleId
+  );
   
   const { activeCycleId } = cycleState;
+  const [amountSecondsPassed, setAmountSecondsPassed] = useState(() => {
+    if(activeCycle) {
+      return differenceInSeconds(new Date(), new Date(activeCycle.startDate))
+    }
+
+    return 0
+  });
+
 
   useEffect(() => {
     const cyclesStateJSON = JSON.stringify(cycleState)
@@ -60,9 +72,7 @@ export function CycleContextProvider({ children }: CycleContextProps) {
   }, [cycleState])
 
 
-  const activeCycle = cycleState.cycles.find(
-    (cycle) => cycle.id === activeCycleId
-  );
+  
 
   const setSecondsPassed = (seconds: number) => {
     setAmountSecondsPassed(seconds);
